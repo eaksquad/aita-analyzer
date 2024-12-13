@@ -29,9 +29,9 @@ export default function Home() {
       }
 
       setAnalysis(data.analysis);
-      setJudgment(data.judgment);
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to analyze post';
+      setError(errorMessage);
       console.error(error);
     } finally {
       setLoading(false);
@@ -46,7 +46,7 @@ export default function Home() {
           <span className="text-blue-400 ml-2" aria-hidden="true">🤔</span>
         </h1>
         <p className="text-sm sm:text-base text-center text-gray-300 mb-6 sm:mb-8 px-4 max-w-2xl mx-auto">
-          Paste your AITA post below and let AI determine if you're the asshole or not.
+          Paste your AITA post below and let AI determine if you&apos;re the asshole or not.
         </p>
         <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
           <div className="bg-gray-800/80 backdrop-blur-sm p-4 sm:p-6 rounded-lg shadow-xl">

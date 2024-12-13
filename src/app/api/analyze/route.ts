@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { checkRateLimit } from './rate-limit';
-const Groq = require('groq-sdk');
+import Groq from 'groq-sdk';
 
 // Maximum allowed post length (100,000 characters)
 const MAX_POST_LENGTH = 100000;
@@ -15,7 +15,7 @@ function sanitizeInput(text: string): string {
 }
 
 // Function to validate request body
-function validateRequest(body: any): { valid: boolean; error?: string } {
+function validateRequest(body: Record<string, unknown>): { valid: boolean; error?: string } {
   if (!body || typeof body !== 'object') {
     return { valid: false, error: 'Invalid request body' };
   }
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     }
 
     // Parse and validate request body
-    let body;
+    let body: Record<string, unknown>;
     try {
       body = await request.json();
     } catch (e) {
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     }
 
     // Sanitize input
-    const sanitizedPost = sanitizeInput(body.post);
+    const sanitizedPost = sanitizeInput(body.post as string);
     
     if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
