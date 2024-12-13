@@ -4,8 +4,5 @@
   "installCommand": "npm install",
   "framework": "nextjs",
   "outputDirectory": ".next",
-  "regions": ["iad1"],
-  "env": {
-    "GROQ_API_KEY": "@groq_api_key"
-  }
+  "regions": ["iad1"]
 }
