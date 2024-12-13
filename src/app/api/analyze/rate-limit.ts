@@ -7,7 +7,7 @@ const rateLimitStore = new Map<string, { count: number; timestamp: number }>();
 const WINDOW_SIZE = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 5; // 5 requests per minute
 
-export async function checkRateLimit(): Promise<{ success: boolean }> {
+export function checkRateLimit(): { success: boolean } {
   // Get client IP
   const headersList = headers();
   
