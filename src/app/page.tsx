@@ -6,12 +6,14 @@ import ReactMarkdown from 'react-markdown';
 export default function Home() {
   const [post, setPost] = useState("");
   const [analysis, setAnalysis] = useState("");
+  const [judgment, setJudgment] = useState<"YTA" | "NTA" | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const analyzePost = async () => {
     setLoading(true);
     setError(null);
+    setJudgment(null);
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -28,6 +30,7 @@ export default function Home() {
       }
 
       setAnalysis(data.analysis);
+      setJudgment(data.judgment as "YTA" | "NTA");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to analyze post';
       setError(errorMessage);
@@ -84,6 +87,27 @@ export default function Home() {
               )}
             </div>
           </div>
+
+          {judgment && !error && (
+            <div className={`p-6 rounded-lg shadow-xl animate-fade-in text-center ${
+              judgment === 'YTA' 
+                ? 'bg-red-900/80 border-2 border-red-500' 
+                : 'bg-green-900/80 border-2 border-green-500'
+            }`}>
+              <h2 className={`text-2xl sm:text-3xl font-bold mb-2 ${
+                judgment === 'YTA' ? 'text-red-200' : 'text-green-200'
+              }`}>
+                {judgment === 'YTA' ? 'You\'re The Asshole' : 'Not The Asshole'}
+              </h2>
+              <p className={`text-sm sm:text-base ${
+                judgment === 'YTA' ? 'text-red-200/80' : 'text-green-200/80'
+              }`}>
+                {judgment === 'YTA' 
+                  ? 'The AI has determined that you were in the wrong in this situation.' 
+                  : 'The AI has determined that you were not in the wrong in this situation.'}
+              </p>
+            </div>
+          )}
 
           {error && (
             <div className="bg-red-900/50 border border-red-500 p-4 rounded-lg text-red-200 text-sm sm:text-base animate-fade-in">
