@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     let body: Record<string, unknown>;
     try {
       body = await request.json();
-    } catch (e) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid JSON in request body' },
         { status: 400 }
@@ -124,31 +124,34 @@ export async function POST(request: Request) {
       analysis,
       formatted: true
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error:', error);
     
     // Handle different types of errors
-    if (error.status === 401) {
-      return NextResponse.json(
-        { error: 'Authentication failed with the AI service' },
-        { status: 401 }
-      );
-    }
+    if (error && typeof error === 'object' && 'status' in error) {
+      const statusError = error as { status: number };
+      if (statusError.status === 401) {
+        return NextResponse.json(
+          { error: 'Authentication failed with the AI service' },
+          { status: 401 }
+        );
+      }
 
-    if (error.status === 429) {
-      return NextResponse.json(
-        { error: 'AI service rate limit exceeded. Please try again later.' },
-        { status: 429 }
-      );
+      if (statusError.status === 429) {
+        return NextResponse.json(
+          { error: 'AI service rate limit exceeded. Please try again later.' },
+          { status: 429 }
+        );
+      }
     }
 
     return NextResponse.json(
       { 
         error: process.env.NODE_ENV === 'development' 
-          ? error?.message || 'Failed to analyze post'
+          ? error instanceof Error ? error.message : 'Failed to analyze post'
           : 'Failed to analyze post' // Don't expose error details in production
       },
-      { status: error?.status || 500 }
+      { status: 500 }
     );
   }
 }
