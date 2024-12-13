@@ -78,14 +78,16 @@ export async function POST(request: Request) {
     // Sanitize input
     const sanitizedPost = sanitizeInput(body.post as string);
     
-    if (!process.env.GROQ_API_KEY) {
+    // Check for API key in both cases
+    const apiKey = process.env.GROQ_API_KEY || process.env.groq_api_key;
+    if (!apiKey) {
       return NextResponse.json(
         { error: 'GROQ API key not configured' },
         { status: 500 }
       );
     }
 
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    const groq = new Groq({ apiKey });
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
