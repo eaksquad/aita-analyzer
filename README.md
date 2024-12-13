@@ -1,4 +1,4 @@
-# AITA Analyzer
+# AITA Analyzer 🚀
 
 A modern web application that analyzes Reddit "Am I The Asshole" (AITA) posts using AI to determine if the poster is indeed the asshole or not.
 
