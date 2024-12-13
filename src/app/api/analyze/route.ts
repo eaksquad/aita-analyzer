@@ -38,7 +38,7 @@ function validateRequest(body: Record<string, unknown>): { valid: boolean; error
 export async function POST(request: Request) {
   try {
     // Check rate limit
-    const rateLimitResult = await checkRateLimit(request);
+    const rateLimitResult = await checkRateLimit();
     if (!rateLimitResult.success) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please try again later.' },

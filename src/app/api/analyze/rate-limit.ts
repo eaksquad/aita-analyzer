@@ -13,9 +13,9 @@ export function checkRateLimit(): { success: boolean } {
   
   // Try to get the real IP from various headers
   const ip = 
-    headersList.get('x-real-ip') || 
-    headersList.get('x-forwarded-for')?.split(',')[0] ||
-    headersList.get('x-vercel-forwarded-for')?.split(',')[0] ||
+    headersList.get('x-real-ip') ?? 
+    headersList.get('x-forwarded-for')?.split(',')[0] ??
+    headersList.get('x-vercel-forwarded-for')?.split(',')[0] ??
     'unknown';
   
   const now = Date.now();
