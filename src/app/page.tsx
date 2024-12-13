@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 export default function Home() {
   const [post, setPost] = useState("");
   const [analysis, setAnalysis] = useState("");
+  const [judgment, setJudgment] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +29,7 @@ export default function Home() {
       }
 
       setAnalysis(data.analysis);
+      setJudgment(data.judgment);
     } catch (error: any) {
       setError(error.message);
       console.error(error);
@@ -92,6 +94,15 @@ export default function Home() {
 
           {analysis && !error && (
             <div className="bg-gray-800/80 backdrop-blur-sm p-4 sm:p-6 rounded-lg shadow-xl animate-fade-in">
+              {judgment && (
+                <div className={`inline-block px-4 py-2 rounded-md text-lg font-bold mb-4 ${
+                  judgment === 'YTA' 
+                    ? 'bg-red-600 text-white' 
+                    : 'bg-green-500 text-black'
+                }`}>
+                  {judgment}
+                </div>
+              )}
               <h2 className="text-lg sm:text-xl font-semibold mb-4">Analysis Result:</h2>
               <div className="prose prose-invert max-w-none prose-sm sm:prose-base prose-headings:font-bold prose-p:text-gray-300 prose-strong:text-white">
                 <ReactMarkdown>{analysis}</ReactMarkdown>

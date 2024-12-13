@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       messages: [
         {
           role: "system",
-          content: "You are an expert at analyzing AITA (Am I The Asshole) Reddit posts. When evaluating a post, carefully consider the context, emotions, and actions of all parties involved. Approach the analysis with empathy and objectivity, avoiding personal biases. Assess the situation from multiple perspectives and in light of social and cultural norms. Identify key factors that contribute to whether the poster is being unreasonable or acting like an asshole, and provide a clear, reasoned explanation supported by the details from the post. Format your response using markdown for better readability, using headers, bullet points, and emphasis where appropriate."
+          content: "You are an expert at analyzing AITA (Am I The Asshole) Reddit posts. Your response should start with a clear judgment: either 'YTA' (You're The Asshole) or 'NTA' (Not The Asshole) on its own line, followed by your detailed analysis. When evaluating a post, carefully consider the context, emotions, and actions of all parties involved. Approach the analysis with empathy and objectivity, avoiding personal biases. Assess the situation from multiple perspectives and in light of social and cultural norms. Identify key factors that contribute to whether the poster is being unreasonable or acting like an asshole, and provide a clear, reasoned explanation supported by the details from the post. Format your response using markdown for better readability, using headers, bullet points, and emphasis where appropriate."
         },
         {
           role: "user",
@@ -111,9 +111,18 @@ export async function POST(request: Request) {
       throw new Error('Invalid response from GROQ API');
     }
 
+    // Extract judgment from the response
+    const response = chatCompletion.choices[0].message.content;
+    const firstLine = response.split('\n')[0].trim();
+    const judgment = firstLine === 'YTA' || firstLine === 'NTA' ? firstLine : 'NTA';
+    const analysis = firstLine === 'YTA' || firstLine === 'NTA' 
+      ? response.substring(firstLine.length).trim()
+      : response;
+
     return NextResponse.json({
-      analysis: chatCompletion.choices[0].message.content,
-      formatted: true // Indicate that the response may contain markdown formatting
+      judgment,
+      analysis,
+      formatted: true
     });
   } catch (error: any) {
     console.error('Error:', error);
