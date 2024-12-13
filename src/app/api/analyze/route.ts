@@ -85,7 +85,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const groq = new Groq(process.env.GROQ_API_KEY);
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
