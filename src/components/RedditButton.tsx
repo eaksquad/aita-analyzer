@@ -19,12 +19,12 @@ const RedditButton: React.FC<RedditButtonProps> = ({
   const handleClick = () => {
     if (!analysis || !judgment) return;
     
-    // Format the analysis with judgment as first line if enabling Reddit style
-    if (!isRedditStyle) {
-      const formattedAnalysis = `${judgment}\n\n${analysis}`;
-      onAnalysisUpdate(formattedAnalysis);
-    }
+    // Format the analysis with judgment as first line, toggle between styles
+    const formattedAnalysis = isRedditStyle 
+      ? analysis.replace(/^.*\n\n/, '') // Remove judgment line if it exists
+      : `${judgment}\n\n${analysis}`;
     
+    onAnalysisUpdate(formattedAnalysis);
     onClick();
   };
 

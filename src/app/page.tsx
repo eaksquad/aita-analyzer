@@ -78,7 +78,9 @@ export default function Home() {
 
   const toggleRedditStyle = async () => {
     setIsRedditStyle(!isRedditStyle);
-    await analyzePost();
+    if (post) {
+      await analyzePost();
+    }
   };
 
   const copyToClipboard = async () => {
