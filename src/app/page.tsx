@@ -76,18 +76,43 @@ export default function Home() {
     }
   };
 
-  const toggleRedditStyle = () => {
+  const toggleRedditStyle = async () => {
     // Toggle the Reddit style state
     const newRedditStyle = !isRedditStyle;
     setIsRedditStyle(newRedditStyle);
 
-    // If there's an existing analysis, reformat it
-    if (analysis && judgment) {
-      const formattedAnalysis = newRedditStyle 
-        ? `${judgment}\n\n${analysis.replace(/^.*\n\n/, '')}` 
-        : analysis.replace(/^.*\n\n/, '');
-      
-      setAnalysis(formattedAnalysis);
+    // If there's an existing post and previous analysis, re-run the analysis
+    if (post && analysis) {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            post,
+            isHumanized,
+            isRedditStyle: newRedditStyle
+          }),
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to analyze post');
+        }
+
+        setAnalysis(data.analysis);
+        setJudgment(data.judgment);
+        setConfidenceScore(data.confidenceScore);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to analyze post';
+        setError(errorMessage);
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
