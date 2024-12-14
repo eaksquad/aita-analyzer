@@ -95,10 +95,23 @@ Use markdown formatting for clarity. Focus on ethical reasoning and always consi
 
   const humanizedAddition = `
 
-Rewrite this text so it sounds more natural and like it’s coming directly from me. Use an empathetic, conversational tone that balances professionalism with relatability. Simplify the language to make it more accessible and easy to follow, and provide clear, structured reasoning for my points. Acknowledge emotional context and add relatable examples or phrases to make it feel more human and engaging. Ensure the sections flow like a natural thought process, and use inclusive language to draw the reader in while maintaining clarity and fairness.
+Rewrite this text so it sounds more natural and like it's coming directly from me. Use an empathetic, conversational tone that balances professionalism with relatability. Simplify the language to make it more accessible and easy to follow, and provide clear, structured reasoning for my points. Acknowledge emotional context and add relatable examples or phrases to make it feel more human and engaging. Ensure the sections flow like a natural thought process, and use inclusive language to draw the reader in while maintaining clarity and fairness.
 
 Keep the tone supportive and constructive, avoiding overly formal or detached phrasing, and focus on making the response feel personal, thoughtful, and approachable.`;
 
+  const redditAddition = `
+
+Rewrite the response to sound like a natural Reddit comment. Avoid summarizing the original post unless necessary. Focus on directly reacting, adding insight or humor, and engaging with the OP. Keep it conversational, concise, and relatable. If appropriate, end with a question to encourage further discussion.
+
+Steps:
+1. Acknowledge the Post: Start by recognizing the OP's situation or sharing a quick reaction (e.g., "That's wild!" or "You handled that so well").
+2. Show Empathy or Humor: Express understanding or add a light, relatable joke if the tone allows.
+3. Offer a Clear Perspective: Share your thoughts on the situation without overexplaining.
+4. Engage with the OP: Pose a follow-up question or invite them to share more details.`;
+
+  if (options?.isRedditStyle) {
+    return basePrompt + redditAddition;
+  }
   return options?.isHumanized ? basePrompt + humanizedAddition : basePrompt;
 }
 
@@ -146,6 +159,7 @@ export async function POST(request: Request) {
     const sanitizedPost = sanitizeInput(body.post as string);
     const options: AIPromptOptions = {
       isHumanized: body.isHumanized as boolean ?? false,
+      isRedditStyle: body.isRedditStyle as boolean ?? false,
     };
     
     // Check for API key

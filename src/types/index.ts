@@ -9,6 +9,7 @@ export interface AnalysisResponse {
 
 export interface AIPromptOptions {
   isHumanized: boolean;
+  isRedditStyle?: boolean;
 }
 
 export type Theme = 'light' | 'dark';

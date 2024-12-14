@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import type { Theme, Judgment } from '@/types';
 import SettingsPanel from '@/components/SettingsPanel';
 import ConfidenceScore from '@/components/ConfidenceScore';
+import RedditButton from '@/components/RedditButton';
 
 export default function Home() {
   // Existing states
@@ -18,6 +19,7 @@ export default function Home() {
   // New states
   const [theme, setTheme] = useState<Theme>('dark');
   const [isHumanized, setIsHumanized] = useState(false);
+  const [isRedditStyle, setIsRedditStyle] = useState(false);
   const [confidenceScore, setConfidenceScore] = useState<number | null>(null);
 
   // Load theme from localStorage on mount
@@ -51,7 +53,8 @@ export default function Home() {
         },
         body: JSON.stringify({ 
           post,
-          isHumanized 
+          isHumanized,
+          isRedditStyle
         }),
       });
 
@@ -70,6 +73,14 @@ export default function Home() {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleRedditStyle = async () => {
+    if (!analysis) return;
+    setIsRedditStyle(!isRedditStyle);
+    if (post) {
+      await analyzePost();
     }
   };
 
@@ -235,6 +246,12 @@ export default function Home() {
                 <ReactMarkdown>{analysis}</ReactMarkdown>
               </div>
             </div>
+          )}
+          {analysis && !error && (
+            <RedditButton
+              onClick={toggleRedditStyle}
+              isRedditStyle={isRedditStyle}
+            />
           )}
         </div>
       </div>
