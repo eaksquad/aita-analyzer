@@ -4,15 +4,11 @@ import type { Judgment } from '@/types';
 interface RedditButtonProps {
   onClick: () => void;
   isRedditStyle: boolean;
-  judgment: Judgment | null;
-  analysis: string;
 }
 
 const RedditButton: React.FC<RedditButtonProps> = ({ 
   onClick, 
-  isRedditStyle, 
-  judgment, 
-  analysis
+  isRedditStyle
 }) => {
   return (
     <button

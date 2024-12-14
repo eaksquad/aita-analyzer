@@ -84,7 +84,7 @@ export default function Home() {
     // If there's an existing analysis, reformat it
     if (analysis && judgment) {
       const formattedAnalysis = newRedditStyle 
-        ? `${judgment}\n\n${analysis}` 
+        ? `${judgment}\n\n${analysis.replace(/^.*\n\n/, '')}` 
         : analysis.replace(/^.*\n\n/, '');
       
       setAnalysis(formattedAnalysis);
@@ -258,8 +258,6 @@ export default function Home() {
             <RedditButton
               onClick={toggleRedditStyle}
               isRedditStyle={isRedditStyle}
-              judgment={judgment}
-              analysis={analysis}
             />
           )}
         </div>
