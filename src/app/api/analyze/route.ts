@@ -115,6 +115,11 @@ export async function POST(request: Request) {
 
     // Extract judgment from the response
     const response = chatCompletion.choices[0].message.content;
+    console.log('API Response:', {
+      timestamp: new Date().toISOString(),
+      content: response,
+      choices: chatCompletion.choices
+    });
     const firstLine = response.split('\n')[0].trim();
     const judgment = firstLine === 'YTA' || firstLine === 'NTA' ? firstLine : 'NTA';
     const analysis = firstLine === 'YTA' || firstLine === 'NTA' 
