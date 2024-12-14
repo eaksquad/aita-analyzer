@@ -6,6 +6,7 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       animation: {
@@ -51,14 +52,28 @@ const config: Config = {
             h4: {
               color: 'inherit',
             },
-            code: {
-              color: 'inherit',
-            },
             strong: {
               color: 'inherit',
             },
+            code: {
+              color: 'inherit',
+              backgroundColor: 'rgb(var(--tw-prose-pre-bg))',
+            },
+            blockquote: {
+              color: 'inherit',
+              borderLeftColor: 'currentColor',
+            },
           },
         },
+      },
+      transitionProperty: {
+        'colors': 'color, background-color, border-color, text-decoration-color, fill, stroke',
+      },
+      transitionDuration: {
+        '200': '200ms',
+      },
+      transitionTimingFunction: {
+        'ease-in-out': 'cubic-bezier(0.4, 0, 0.2, 1)',
       },
     },
   },

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { checkRateLimit } from './rate-limit';
 import Groq from 'groq-sdk';
+import type { Judgment, AIPromptOptions } from '@/types';
 
 // Maximum allowed post length (100,000 characters)
 const MAX_POST_LENGTH = 100000;
@@ -33,6 +34,70 @@ function validateRequest(body: Record<string, unknown>): { valid: boolean; error
   }
 
   return { valid: true };
+}
+
+// Function to calculate confidence score based on AI response
+function calculateConfidenceScore(response: string): number {
+  const indicators = {
+    clear_judgment: /^(YTA|NTA|ESH)\s/i.test(response),
+    structured_analysis: /Context|Summary|Analysis|Assessment|Reasoning/i.test(response),
+    specific_examples: response.split('\n').length > 5,
+    detailed_explanation: response.length > 500,
+    balanced_view: /on.*one.*hand.*other.*hand|however|although|despite/i.test(response),
+  };
+
+  const weights = {
+    clear_judgment: 0.3,
+    structured_analysis: 0.2,
+    specific_examples: 0.2,
+    detailed_explanation: 0.15,
+    balanced_view: 0.15,
+  };
+
+  let score = 0;
+  for (const [key, present] of Object.entries(indicators)) {
+    if (present) {
+      score += weights[key as keyof typeof weights] * 100;
+    }
+  }
+
+  return Math.round(Math.min(100, Math.max(0, score)));
+}
+
+// Function to get AI prompt based on options
+function getAIPrompt(options?: AIPromptOptions): string {
+  const basePrompt = `You are an expert at analyzing AITA (Am I The Asshole) Reddit posts with a strong focus on ethical reasoning and proportionality. Your analysis must follow these strict guidelines:
+
+1. SEVERITY ASSESSMENT:
+- Always weigh the severity of actions on both sides
+- Consider if any actions are criminal or abusive
+- Evaluate if responses are proportional to the initial issue
+
+2. JUDGMENT CRITERIA:
+- YTA (You're The Asshole): The poster's actions are clearly wrong AND proportional to any negative response
+- NTA (Not The Asshole): The poster's actions are either justified OR they received a disproportionate response
+- ESH (Everyone Sucks Here): Both parties acted poorly with similar levels of severity
+
+3. CRITICAL FACTORS:
+- Criminal actions automatically make that party the primary asshole
+- Violence or abuse is never justified by minor infractions
+- Mental health issues should be identified as requiring professional help
+- Threats to safety take precedence over minor disputes
+
+Your response MUST start with one of these judgments (YTA/NTA/ESH) on its own line, followed by a structured analysis including:
+- Context summary
+- Severity assessment
+- Proportionality analysis
+- Safety concerns (if any)
+- Final reasoning and recommendations
+
+Use markdown formatting for clarity. Focus on ethical reasoning and always consider the real-world implications of actions.`;
+
+  const humanizedAddition = `
+
+Please provide your analysis in a more conversational and empathetic tone, while maintaining professionalism. Use more accessible language and relatable examples when possible. Consider the emotional context and provide constructive feedback in a supportive manner.`;
+
+  return options?.isHumanized ? basePrompt + humanizedAddition : basePrompt;
 }
 
 export async function POST(request: Request) {
@@ -77,8 +142,11 @@ export async function POST(request: Request) {
 
     // Sanitize input
     const sanitizedPost = sanitizeInput(body.post as string);
+    const options: AIPromptOptions = {
+      isHumanized: body.isHumanized as boolean ?? false,
+    };
     
-    // Check for API key in both cases
+    // Check for API key
     const apiKey = process.env.GROQ_API_KEY || process.env.groq_api_key;
     if (!apiKey) {
       return NextResponse.json(
@@ -93,7 +161,7 @@ export async function POST(request: Request) {
       messages: [
         {
           role: "system",
-          content: "You are an expert at analyzing AITA (Am I The Asshole) Reddit posts with a strong focus on ethical reasoning and proportionality. Your analysis must follow these strict guidelines:\n\n1. SEVERITY ASSESSMENT:\n- Always weigh the severity of actions on both sides\n- Consider if any actions are criminal or abusive\n- Evaluate if responses are proportional to the initial issue\n\n2. JUDGMENT CRITERIA:\n- YTA (You're The Asshole): The poster's actions are clearly wrong AND proportional to any negative response\n- NTA (Not The Asshole): The poster's actions are either justified OR they received a disproportionate response\n- ESH (Everyone Sucks Here): Both parties acted poorly with similar levels of severity\n\n3. CRITICAL FACTORS:\n- Criminal actions automatically make that party the primary asshole\n- Violence or abuse is never justified by minor infractions\n- Mental health issues should be identified as requiring professional help\n- Threats to safety take precedence over minor disputes\n\nYour response MUST start with one of these judgments (YTA/NTA/ESH) on its own line, followed by a structured analysis including:\n- Context summary\n- Severity assessment\n- Proportionality analysis\n- Safety concerns (if any)\n- Final reasoning and recommendations\n\nUse markdown formatting for clarity. Focus on ethical reasoning and always consider the real-world implications of actions."
+          content: getAIPrompt(options)
         },
         {
           role: "user",
@@ -121,7 +189,7 @@ export async function POST(request: Request) {
       choices: chatCompletion.choices
     });
     const firstLine = response.split('\n')[0].trim().toUpperCase();
-    let judgment;
+    let judgment: Judgment;
     if (firstLine.includes('YTA')) {
       judgment = 'YTA';
     } else if (firstLine.includes('NTA')) {
@@ -129,14 +197,15 @@ export async function POST(request: Request) {
     } else if (firstLine.includes('ESH')) {
       judgment = 'ESH';
     } else {
-      // If no valid judgment is found, we'll consider it inconclusive
       judgment = 'INCONCLUSIVE';
     }
     const analysis = response.substring(firstLine.length).trim();
+    const confidenceScore = calculateConfidenceScore(response);
 
     return NextResponse.json({
       judgment,
       analysis,
+      confidenceScore,
       formatted: true
     });
   } catch (error: unknown) {
@@ -164,7 +233,7 @@ export async function POST(request: Request) {
       { 
         error: process.env.NODE_ENV === 'development' 
           ? error instanceof Error ? error.message : 'Failed to analyze post'
-          : 'Failed to analyze post' // Don't expose error details in production
+          : 'Failed to analyze post. Please try again later.'
       },
       { status: 500 }
     );
