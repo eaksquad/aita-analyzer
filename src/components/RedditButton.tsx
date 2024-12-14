@@ -1,5 +1,4 @@
 import React from 'react';
-import type { Judgment } from '@/types';
 
 interface RedditButtonProps {
   onClick: () => void;
