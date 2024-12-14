@@ -76,10 +76,18 @@ export default function Home() {
     }
   };
 
-  const toggleRedditStyle = async () => {
-    setIsRedditStyle(!isRedditStyle);
-    if (post) {
-      await analyzePost();
+  const toggleRedditStyle = () => {
+    // Toggle the Reddit style state
+    const newRedditStyle = !isRedditStyle;
+    setIsRedditStyle(newRedditStyle);
+
+    // If there's an existing analysis, reformat it
+    if (analysis && judgment) {
+      const formattedAnalysis = newRedditStyle 
+        ? `${judgment}\n\n${analysis}` 
+        : analysis.replace(/^.*\n\n/, '');
+      
+      setAnalysis(formattedAnalysis);
     }
   };
 
@@ -252,7 +260,6 @@ export default function Home() {
               isRedditStyle={isRedditStyle}
               judgment={judgment}
               analysis={analysis}
-              onAnalysisUpdate={setAnalysis}
             />
           )}
         </div>

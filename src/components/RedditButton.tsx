@@ -6,31 +6,17 @@ interface RedditButtonProps {
   isRedditStyle: boolean;
   judgment: Judgment | null;
   analysis: string;
-  onAnalysisUpdate: (newAnalysis: string) => void;
 }
 
 const RedditButton: React.FC<RedditButtonProps> = ({ 
   onClick, 
   isRedditStyle, 
   judgment, 
-  analysis,
-  onAnalysisUpdate 
+  analysis
 }) => {
-  const handleClick = () => {
-    if (!analysis || !judgment) return;
-    
-    // Format the analysis with judgment as first line, toggle between styles
-    const formattedAnalysis = isRedditStyle 
-      ? analysis.replace(/^.*\n\n/, '') // Remove judgment line if it exists
-      : `${judgment}\n\n${analysis}`;
-    
-    onAnalysisUpdate(formattedAnalysis);
-    onClick();
-  };
-
   return (
     <button
-      onClick={handleClick}
+      onClick={onClick}
       className={`fixed bottom-4 right-4 p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 ${
         isRedditStyle 
           ? 'bg-orange-500 hover:bg-orange-600' 
