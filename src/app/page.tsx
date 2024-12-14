@@ -9,6 +9,7 @@ export default function Home() {
   const [judgment, setJudgment] = useState<"YTA" | "NTA" | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const analyzePost = async () => {
     setLoading(true);
@@ -37,6 +38,16 @@ export default function Home() {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(analysis);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text:', err);
     }
   };
 
@@ -117,7 +128,24 @@ export default function Home() {
 
           {analysis && !error && (
             <div className="bg-gray-800/80 backdrop-blur-sm p-4 sm:p-6 rounded-lg shadow-xl animate-fade-in">
-              <h2 className="text-lg sm:text-xl font-semibold mb-4">Analysis Result:</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg sm:text-xl font-semibold">Analysis Result:</h2>
+                <button
+                  onClick={copyToClipboard}
+                  className="p-2 text-gray-400 hover:text-white transition-colors duration-200 ease-in-out"
+                  title="Copy analysis"
+                >
+                  {copied ? (
+                    <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
               <div className="prose prose-invert max-w-none prose-sm sm:prose-base prose-headings:font-bold prose-p:text-gray-300 prose-strong:text-white">
                 <ReactMarkdown>{analysis}</ReactMarkdown>
               </div>
