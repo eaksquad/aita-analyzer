@@ -120,11 +120,19 @@ export async function POST(request: Request) {
       content: response,
       choices: chatCompletion.choices
     });
-    const firstLine = response.split('\n')[0].trim();
-    const judgment = firstLine === 'YTA' || firstLine === 'NTA' ? firstLine : 'NTA';
-    const analysis = firstLine === 'YTA' || firstLine === 'NTA' 
-      ? response.substring(firstLine.length).trim()
-      : response;
+    const firstLine = response.split('\n')[0].trim().toUpperCase();
+    let judgment;
+    if (firstLine.includes('YTA')) {
+      judgment = 'YTA';
+    } else if (firstLine.includes('NTA')) {
+      judgment = 'NTA';
+    } else if (firstLine.includes('ESH')) {
+      judgment = 'ESH';
+    } else {
+      // If no valid judgment is found, we'll consider it inconclusive
+      judgment = 'INCONCLUSIVE';
+    }
+    const analysis = response.substring(firstLine.length).trim();
 
     return NextResponse.json({
       judgment,
