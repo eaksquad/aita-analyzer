@@ -95,7 +95,9 @@ Use markdown formatting for clarity. Focus on ethical reasoning and always consi
 
   const humanizedAddition = `
 
-Please provide your analysis in a more conversational and empathetic tone, while maintaining professionalism. Use more accessible language and relatable examples when possible. Consider the emotional context and provide constructive feedback in a supportive manner.`;
+Rewrite this text so it sounds more natural and like it’s coming directly from me. Use an empathetic, conversational tone that balances professionalism with relatability. Simplify the language to make it more accessible and easy to follow, and provide clear, structured reasoning for my points. Acknowledge emotional context and add relatable examples or phrases to make it feel more human and engaging. Ensure the sections flow like a natural thought process, and use inclusive language to draw the reader in while maintaining clarity and fairness.
+
+Keep the tone supportive and constructive, avoiding overly formal or detached phrasing, and focus on making the response feel personal, thoughtful, and approachable.`;
 
   return options?.isHumanized ? basePrompt + humanizedAddition : basePrompt;
 }
