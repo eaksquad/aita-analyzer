@@ -1,14 +1,36 @@
 import React from 'react';
+import type { Judgment } from '@/types';
 
 interface RedditButtonProps {
   onClick: () => void;
   isRedditStyle: boolean;
+  judgment: Judgment | null;
+  analysis: string;
+  onAnalysisUpdate: (newAnalysis: string) => void;
 }
 
-const RedditButton: React.FC<RedditButtonProps> = ({ onClick, isRedditStyle }) => {
+const RedditButton: React.FC<RedditButtonProps> = ({ 
+  onClick, 
+  isRedditStyle, 
+  judgment, 
+  analysis,
+  onAnalysisUpdate 
+}) => {
+  const handleClick = () => {
+    if (!analysis || !judgment) return;
+    
+    // Format the analysis with judgment as first line if enabling Reddit style
+    if (!isRedditStyle) {
+      const formattedAnalysis = `${judgment}\n\n${analysis}`;
+      onAnalysisUpdate(formattedAnalysis);
+    }
+    
+    onClick();
+  };
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       className={`fixed bottom-4 right-4 p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 ${
         isRedditStyle 
           ? 'bg-orange-500 hover:bg-orange-600' 

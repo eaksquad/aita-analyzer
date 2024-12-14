@@ -77,7 +77,6 @@ export default function Home() {
   };
 
   const toggleRedditStyle = async () => {
-    if (!analysis) return;
     setIsRedditStyle(!isRedditStyle);
     if (post) {
       await analyzePost();
@@ -251,6 +250,9 @@ export default function Home() {
             <RedditButton
               onClick={toggleRedditStyle}
               isRedditStyle={isRedditStyle}
+              judgment={judgment}
+              analysis={analysis}
+              onAnalysisUpdate={setAnalysis}
             />
           )}
         </div>
